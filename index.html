@@ -1,230 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Top 10 Favorite Pokémon - 30th Anniversary</title>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  background: white;
-}
-
-.left {
-  width: 60%;
-  background: #f3f3f3;
-  padding: 40px;
-}
-
-.right {
-  width: 40%;
-  background: #e60000;
-  color: white;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.title {
-  font-size: 30px;
-  text-align: center;
-  line-height: 1.4;
-}
-
-.list-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 25px;
-  position: relative;
-}
-
-.rank {
-  width: 30px;
-  font-size: 20px;
-}
-
-.logo {
-  position: absolute;
-  left: 40px;
-  width: 90px;
-  opacity: 0.2;
-  z-index: 0;
-}
-
-.pokemon-img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  margin-right: 20px;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.pokemon-name {
-  font-size: 22px;
-  font-weight: bold;
-  outline: none;
-  z-index: 2;
-  padding: 5px;
-}
-
-.trainer {
-  position: absolute;
-  bottom: 40px;
-  width: 200px;
-  cursor: pointer;
-}
-
-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 10px 15px;
-  border: none;
-  background: black;
-  color: white;
-  cursor: pointer;
-}
-input.pokemon-name {
-  font-size: 20px;
-  font-weight: bold;
-  width: 200px;
-  padding: 5px;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Top 10 Favorite Pokémon – 30th Anniversary</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<button onclick="exportImage()">Export as PNG</button>
+  <div class="container">
+    <h1>Top 10 Favorite Pokémon – 30th Anniversary</h1>
 
-<div class="left" id="pokemonList"></div>
-
-<div class="right">
-  <div class="title">
-    Top 10 Favorite Pokémon<br>
-    30th Anniversary Edition
+    <div id="list"></div>
   </div>
-  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png"
-       class="trainer"
-       id="trainerImage"
-       onclick="changeImage(this)">
-</div>
 
-<script>
-const list = document.getElementById("pokemonList");
-
-// Create 10 Pokémon slots
-for (let i = 1; i <= 10; i++) {
-  createSlot(i, "");
-}
-
-function createSlot(rank, name){
-  const item = document.createElement("div");
-  item.className = "list-item";
-
-  item.innerHTML = `
-    <div class="rank">${rank}.</div>
-    <img class="logo">
-    <img class="pokemon-img">
-    <input type="text"
-           class="pokemon-name"
-           placeholder="Type Pokémon name"
-           onblur="handleNameChange(this)"
-           onkeypress="if(event.key==='Enter'){handleNameChange(this); this.blur();}"
-           value="${name}">
-  `;
-
-  list.appendChild(item);
-}
-
-// Update images/logos when Pokémon name is typed
-async function handleNameChange(element){
-  const name = element.value.trim().toLowerCase();
-  if(!name) return;
-
-  try{
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-    const data = await response.json();
-    const dex = data.id.toString().padStart(3,"0");
-
-    const parent = element.parentElement;
-    const img = parent.querySelector(".pokemon-img");
-    const logo = parent.querySelector(".logo");
-
-    img.src = `https://img.pokemondb.net/artwork/large/${name}.jpg`;
-    logo.src = `https://www.serebii.net/pokemon30/${dex}.png`;
-
-    saveData();
-  }catch{
-    console.log("Pokémon not found.");
-    element.value = "";
-  }
-}
-
-// Trainer image upload
-function changeImage(img){
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.onchange = e => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      img.src = reader.result;
-      saveData();
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  };
-  input.click();
-}
-
-// Save state to localStorage
-function saveData(){
-  const names = [...document.querySelectorAll(".pokemon-name")].map(n=>n.value);
-  const images = [...document.querySelectorAll(".pokemon-img")].map(i=>i.src);
-  const logos = [...document.querySelectorAll(".logo")].map(l=>l.src);
-  const trainer = document.getElementById("trainerImage").src;
-
-  localStorage.setItem("pokemonData",
-    JSON.stringify({names, images, logos, trainer}));
-}
-
-// Load state from localStorage
-function loadData(){
-  const data = JSON.parse(localStorage.getItem("pokemonData"));
-  if(!data) return;
-
-  document.querySelectorAll(".pokemon-name").forEach((n,i)=>{
-    n.value = data.names[i];
-  });
-
-  document.querySelectorAll(".pokemon-img").forEach((img,i)=>{
-    img.src = data.images[i];
-  });
-
-  document.querySelectorAll(".logo").forEach((l,i)=>{
-    l.src = data.logos[i];
-  });
-
-  document.getElementById("trainerImage").src = data.trainer;
-}
-
-// Export page as PNG
-function exportImage(){
-  html2canvas(document.body).then(canvas=>{
-    const link = document.createElement("a");
-    link.download = "my-pokemon-top10.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-}
-
-window.onload = loadData;
-</script>
+  <script src="dex.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>
+
+body {
+  background: #e00000;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+.container {
+  width: 90%;
+  max-width: 700px;
+  margin: 40px auto;
+  background: #ffffff22;
+  padding: 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  background: #ffffff11;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+}
+
+.rank {
+  font-size: 24px;
+  width: 40px;
+  text-align: center;
+}
+
+.poke-input {
+  flex: 1;
+  padding: 8px;
+  font-size: 18px;
+  border-radius: 6px;
+  border: none;
+}
+
+.poke-logo {
+  width: 80px;
+  height: 80px;
+  margin-left: 12px;
+  object-fit: contain;
+}
+
+const POKEDEX = {
+  "bulbasaur": 1, "ivysaur": 2, "venusaur": 3,
+  "charmander": 4, "charmeleon": 5, "charizard": 6,
+  "squirtle": 7, "wartortle": 8, "blastoise": 9,
+
+  // Your top 10 examples
+  "samurott": 503,
+  "jolteon": 135,
+  "zoroark": 571,
+  "darkrai": 491,
+  "gardevoir": 282,
+  "victini": 494,
+  "salazzle": 758,
+  "lugia": 249,
+  "electivire": 466,
+  "gliscor": 472
+};
+
+// Create 10 editable rows
+const list = document.getElementById("list");
+
+for (let i = 1; i <= 10; i++) {
+  const row = document.createElement("div");
+  row.className = "entry";
+
+  row.innerHTML = `
+    <div class="rank">${i}</div>
+    <input type="text" class="poke-input" placeholder="Enter Pokémon name">
+    <img class="poke-logo" src="" alt="">
+  `;
+
+  list.appendChild(row);
+}
+
+// Add input listeners
+document.querySelectorAll(".poke-input").forEach((input, index) => {
+  input.addEventListener("input", () => {
+    const name = input.value.toLowerCase().trim();
+
+    if (!POKEDEX[name]) return;
+
+    const num = POKEDEX[name].toString().padStart(4, "0");
+    const img = document.querySelectorAll(".poke-logo")[index];
+
+    img.src = `https://www.serebii.net/pokemon30/${num}.png`;
+  });
+});
+
