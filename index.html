@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Top 10 Favorite Pokémon - 30th Anniversary</title>
-
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
@@ -71,6 +70,7 @@ body {
   font-weight: bold;
   outline: none;
   z-index: 2;
+  padding: 5px;
 }
 
 .trainer {
@@ -89,6 +89,12 @@ button {
   background: black;
   color: white;
   cursor: pointer;
+}
+input.pokemon-name {
+  font-size: 20px;
+  font-weight: bold;
+  width: 200px;
+  padding: 5px;
 }
 </style>
 </head>
@@ -110,9 +116,9 @@ button {
 </div>
 
 <script>
-
 const list = document.getElementById("pokemonList");
 
+// Create 10 Pokémon slots
 for (let i = 1; i <= 10; i++) {
   createSlot(i, "");
 }
@@ -125,16 +131,20 @@ function createSlot(rank, name){
     <div class="rank">${rank}.</div>
     <img class="logo">
     <img class="pokemon-img">
-    <div contenteditable="true"
-         class="pokemon-name"
-         oninput="handleNameChange(this)">${name}</div>
+    <input type="text"
+           class="pokemon-name"
+           placeholder="Type Pokémon name"
+           onblur="handleNameChange(this)"
+           onkeypress="if(event.key==='Enter'){handleNameChange(this); this.blur();}"
+           value="${name}">
   `;
 
   list.appendChild(item);
 }
 
+// Update images/logos when Pokémon name is typed
 async function handleNameChange(element){
-  const name = element.innerText.trim().toLowerCase();
+  const name = element.value.trim().toLowerCase();
   if(!name) return;
 
   try{
@@ -152,9 +162,11 @@ async function handleNameChange(element){
     saveData();
   }catch{
     console.log("Pokémon not found.");
+    element.value = "";
   }
 }
 
+// Trainer image upload
 function changeImage(img){
   const input = document.createElement("input");
   input.type = "file";
@@ -170,8 +182,9 @@ function changeImage(img){
   input.click();
 }
 
+// Save state to localStorage
 function saveData(){
-  const names = [...document.querySelectorAll(".pokemon-name")].map(n=>n.innerText);
+  const names = [...document.querySelectorAll(".pokemon-name")].map(n=>n.value);
   const images = [...document.querySelectorAll(".pokemon-img")].map(i=>i.src);
   const logos = [...document.querySelectorAll(".logo")].map(l=>l.src);
   const trainer = document.getElementById("trainerImage").src;
@@ -180,12 +193,13 @@ function saveData(){
     JSON.stringify({names, images, logos, trainer}));
 }
 
+// Load state from localStorage
 function loadData(){
   const data = JSON.parse(localStorage.getItem("pokemonData"));
   if(!data) return;
 
   document.querySelectorAll(".pokemon-name").forEach((n,i)=>{
-    n.innerText = data.names[i];
+    n.value = data.names[i];
   });
 
   document.querySelectorAll(".pokemon-img").forEach((img,i)=>{
@@ -199,6 +213,7 @@ function loadData(){
   document.getElementById("trainerImage").src = data.trainer;
 }
 
+// Export page as PNG
 function exportImage(){
   html2canvas(document.body).then(canvas=>{
     const link = document.createElement("a");
@@ -209,7 +224,6 @@ function exportImage(){
 }
 
 window.onload = loadData;
-
 </script>
 
 </body>
